@@ -1,13 +1,18 @@
+import logging
 from functools import wraps
 
-from flask import ( 
+from flask import (
     redirect,
-    render_template, 
-    session, 
+    render_template,
+    request,
+    session,
     url_for,
 )
 
 from app.models.usuario import Usuario
+
+
+logger = logging.getLogger(__name__)
 
 
 def _usuario_atual():
@@ -20,8 +25,29 @@ def _usuario_atual():
 
     usuario = Usuario.query.get(usuario_id)
 
-    if usuario is None or not usuario.ativo:
+    if usuario is None:
+        logger.warning(
+            "Sessão associada a usuário inexistente: "
+            "usuario_id=%s rota=%s",
+            usuario_id,
+            request.path,
+        )
+
         session.clear()
+
+        return None
+
+    if not usuario.ativo:
+        logger.warning(
+            "Sessão de usuário inativo encerrada: "
+            "usuario_id=%s username=%s rota=%s",
+            usuario.id,
+            usuario.username,
+            request.path,
+        )
+
+        session.clear()
+
         return None
 
     session["usuario_nome"] = usuario.nome
@@ -38,7 +64,15 @@ def login_required(view):
         usuario = _usuario_atual()
 
         if usuario is None:
-            return redirect(url_for("auth.login"))
+            logger.info(
+                "Acesso não autenticado redirecionado para login: "
+                "rota=%s",
+                request.path,
+            )
+
+            return redirect(
+                url_for("auth.login")
+            )
 
         return view(*args, **kwargs)
 
@@ -53,10 +87,29 @@ def admin_required(view):
         usuario = _usuario_atual()
 
         if usuario is None:
-            return redirect(url_for("auth.login"))
+            logger.info(
+                "Acesso administrativo sem autenticação: "
+                "rota=%s",
+                request.path,
+            )
+
+            return redirect(
+                url_for("auth.login")
+            )
 
         if usuario.perfil != "ADMIN":
-            return render_template("403.html"), 403
+            logger.warning(
+                "Acesso administrativo negado: "
+                "usuario_id=%s username=%s perfil=%s rota=%s",
+                usuario.id,
+                usuario.username,
+                usuario.perfil,
+                request.path,
+            )
+
+            return render_template(
+                "403.html"
+            ), 403
 
         return view(*args, **kwargs)
 

@@ -1,9 +1,14 @@
+import logging
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 
 from config import Config
+from app.logging_config import configurar_logging
 
+
+logger = logging.getLogger(__name__)
 
 db = SQLAlchemy()
 
@@ -31,6 +36,8 @@ def configurar_sqlite(engine):
 def create_app():
     """Cria e configura a aplicação Flask."""
 
+    configurar_logging()
+
     app = Flask(__name__)
     app.config.from_object(Config)
 
@@ -50,5 +57,9 @@ def create_app():
     app.register_blueprint(usuarios_bp)
     app.register_blueprint(produtos_bp)
     app.register_blueprint(movimentacoes_bp)
+
+    logger.info(
+        "Aplicação StockFlow inicializada com sucesso"
+    )
 
     return app

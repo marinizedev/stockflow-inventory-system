@@ -1,7 +1,12 @@
+import logging
+
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.models.produto import Produto
+
+
+logger = logging.getLogger(__name__)
 
 
 def criar_produto(
@@ -65,11 +70,30 @@ def criar_produto(
 
     try:
         db.session.commit()
+
     except SQLAlchemyError:
         db.session.rollback()
+
+        logger.exception(
+            "Erro ao criar produto: codigo=%s nome=%s",
+            codigo,
+            nome,
+        )
+
         raise
 
+    logger.info(
+        "Produto criado com sucesso: "
+        "produto_id=%s codigo=%s nome=%s "
+        "quantidade_inicial=%s",
+        produto.id,
+        produto.codigo,
+        produto.nome,
+        produto.quantidade_atual,
+    )
+
     return produto
+
 
 def editar_produto(
     produto,
@@ -125,12 +149,34 @@ def editar_produto(
 
     except SQLAlchemyError:
         db.session.rollback()
+
+        logger.exception(
+            "Erro ao editar produto: produto_id=%s",
+            produto.id,
+        )
+
         raise
+
+    logger.info(
+        "Produto editado com sucesso: "
+        "produto_id=%s codigo=%s nome=%s",
+        produto.id,
+        produto.codigo,
+        produto.nome,
+    )
+
 
 def inativar_produto(produto):
     """Inativa um produto sem remover seu histórico."""
 
     if not produto.ativo:
+        logger.info(
+            "Produto já estava inativo: "
+            "produto_id=%s codigo=%s",
+            produto.id,
+            produto.codigo,
+        )
+
         return
 
     produto.ativo = False
@@ -140,13 +186,35 @@ def inativar_produto(produto):
 
     except SQLAlchemyError:
         db.session.rollback()
+
+        logger.exception(
+            "Erro ao inativar produto: "
+            "produto_id=%s codigo=%s",
+            produto.id,
+            produto.codigo,
+        )
+
         raise
+
+    logger.info(
+        "Produto inativado com sucesso: "
+        "produto_id=%s codigo=%s",
+        produto.id,
+        produto.codigo,
+    )
 
 
 def ativar_produto(produto):
     """Ativa novamente um produto."""
 
     if produto.ativo:
+        logger.info(
+            "Produto já estava ativo: "
+            "produto_id=%s codigo=%s",
+            produto.id,
+            produto.codigo,
+        )
+
         return
 
     produto.ativo = True
@@ -156,4 +224,19 @@ def ativar_produto(produto):
 
     except SQLAlchemyError:
         db.session.rollback()
+
+        logger.exception(
+            "Erro ao ativar produto: "
+            "produto_id=%s codigo=%s",
+            produto.id,
+            produto.codigo,
+        )
+
         raise
+
+    logger.info(
+        "Produto ativado com sucesso: "
+        "produto_id=%s codigo=%s",
+        produto.id,
+        produto.codigo,
+    )
