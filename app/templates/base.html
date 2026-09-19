@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+            StockFlow
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header class="site-header">
+
+        <div class="brand">
+
+            <a
+                href="{{ url_for('dashboard.index') }}"
+                class="brand-link"
+            >
+
+                <span class="brand-mark">
+                    SF
+                </span>
+
+                <span class="brand-name">
+                    <span class="brand-stock">Stock</span><span class="brand-flow">Flow</span>
+                </span>
+
+            </a>
+
+        </div>
+
+        {% if session.get("usuario_id") %}
+
+            <nav class="main-nav">
+
+                <a
+                    href="{{ url_for('dashboard.index') }}"
+                    class="{% if request.endpoint == 'dashboard.index' %}active{% endif %}"
+                >
+                    Início
+                </a>
+
+                <a
+                    href="{{ url_for('produtos.index') }}"
+                    class="{% if request.endpoint.startswith('produtos.') %}active{% endif %}"
+                >
+                    Produtos
+                </a>
+
+                <a
+                    href="{{ url_for('movimentacoes.index') }}"
+                    class="{% if request.endpoint.startswith('movimentacoes.') %}active{% endif %}"
+                >
+                    Movimentações
+                </a>
+
+                {% if session.get("usuario_perfil") == "ADMIN" %}
+
+                    <a
+                        href="{{ url_for('usuarios.index') }}"
+                        class="{% if request.endpoint.startswith('usuarios.') %}active{% endif %}"
+                    >
+                        Usuários
+                    </a>
+
+                {% endif %}
+
+            </nav>
+
+            <div class="user-area">
+
+                <div class="user-info">
+
+                    <span class="user-avatar">
+                        {{ session.get("usuario_nome")[0]|upper }}
+                    </span>
+
+                    <div class="user-details">
+
+                        <strong>
+                            {{ session.get("usuario_nome") }}
+                        </strong>
+
+                        <span
+                            class="profile-badge
+                            {% if session.get('usuario_perfil') == 'ADMIN' %}
+                                admin
+                            {% else %}
+                                comum
+                            {% endif %}"
+                        >
+                            {{ session.get("usuario_perfil") }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <a
+                    href="{{ url_for('auth.logout') }}"
+                    class="logout-link"
+                >
+                    Sair
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </header>
+
+    <main>
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+</body>
+
+</html>

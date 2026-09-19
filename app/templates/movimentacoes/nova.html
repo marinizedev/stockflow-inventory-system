@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Nova movimentação | StockFlow
+{% endblock %}
+
+{% block content %}
+
+<h1>Nova movimentação</h1>
+
+{% if erro %}
+    <p>{{ erro }}</p>
+{% endif %}
+
+{% if produtos %}
+
+    <form method="POST">
+
+        <div>
+            <label for="produto_id">
+                Produto
+            </label>
+
+            <select
+                id="produto_id"
+                name="produto_id"
+                required
+            >
+                <option value="">
+                    Selecione um produto
+                </option>
+
+                {% for produto in produtos %}
+
+                    <option
+                        value="{{ produto.id }}"
+                        {% if produto_id|default('')|string == produto.id|string %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ produto.codigo }}
+                        -
+                        {{ produto.nome }}
+                        (estoque: {{ produto.quantidade_atual }})
+                    </option>
+
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div>
+            <label for="tipo">
+                Tipo
+            </label>
+
+            <select
+                id="tipo"
+                name="tipo"
+                required
+            >
+                <option value="">
+                    Selecione o tipo
+                </option>
+
+                <option
+                    value="ENTRADA"
+                    {% if tipo|default('') == 'ENTRADA' %}
+                        selected
+                    {% endif %}
+                >
+                    Entrada
+                </option>
+
+                <option
+                    value="SAIDA"
+                    {% if tipo|default('') == 'SAIDA' %}
+                        selected
+                    {% endif %}
+                >
+                    Saída
+                </option>
+
+            </select>
+        </div>
+
+        <div>
+            <label for="quantidade">
+                Quantidade
+            </label>
+
+            <input
+                type="number"
+                id="quantidade"
+                name="quantidade"
+                min="1"
+                value="{{ quantidade|default('') }}"
+                required
+            >
+        </div>
+
+        <div>
+            <label for="observacao">
+                Observação
+            </label>
+
+            <textarea
+                id="observacao"
+                name="observacao"
+                rows="4"
+            >{{ observacao|default('') }}</textarea>
+        </div>
+
+        <button type="submit">
+            Registrar movimentação
+        </button>
+
+    </form>
+
+{% else %}
+
+    <p>
+        Não há produtos ativos disponíveis para movimentação.
+    </p>
+
+{% endif %}
+
+<p>
+    <a href="{{ url_for('movimentacoes.index') }}">
+        Voltar para movimentações
+    </a>
+</p>
+
+<p>
+    <a href="{{ url_for('produtos.index') }}">
+        Ir para produtos
+    </a>
+</p>
+
+{% endblock %}

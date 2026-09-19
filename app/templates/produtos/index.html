@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Produtos | StockFlow
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="page-heading">
+        <div>
+            <span class="page-eyebrow">
+                CATÁLOGO OPERACIONAL
+            </span>
+
+            <h1>Produtos</h1>
+
+            <p class="page-description">
+                Consulte e gerencie os produtos cadastrados no estoque.
+            </p>
+        </div>
+
+        {% if session.get("usuario_perfil") == "ADMIN" %}
+            <a
+                href="{{ url_for('produtos.novo') }}"
+                class="primary-action"
+            >
+                Cadastrar produto
+            </a>
+        {% endif %}
+    </div>
+
+
+
+    {% if produtos %}
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Estoque atual</th>
+                    <th>Estoque mínimo</th>
+                    <th>Preço</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for produto in produtos %}
+
+                    <tr>
+
+                        <td>
+                            {{ produto.codigo }}
+                        </td>
+
+                        <td>
+                            {{ produto.nome }}
+                        </td>
+
+                        <td>
+                            {{ produto.categoria or "-" }}
+                        </td>
+
+                        <td>
+                            <span class="stock-quantity">
+                                {{ produto.quantidade_atual }}
+                            </span>
+
+                            {% if produto.quantidade_atual < produto.estoque_minimo %}
+                                <span class="stock-badge stock-badge-warning">
+                                    Estoque baixo
+                                </span>
+                            {% endif %}
+                        </td>
+
+
+                        <td>
+                            {{ produto.estoque_minimo }}
+                        </td>
+
+                        <td>
+                            R$ {{ "%.2f"|format(produto.preco) }}
+                        </td>
+
+                        <td>
+                            {% if produto.ativo %}
+                                <span class="status-product status-product-active">
+                                    Ativo
+                                </span>
+                            {% else %}
+                                <span class="status-product status-product-inactive">
+                                    Inativo
+                                </span>
+                            {% endif %}
+                        </td>
+
+
+                        <td>
+
+                            {% if session.get("usuario_perfil") == "ADMIN" %}
+
+                                <a href="{{ url_for(
+                                    'produtos.editar',
+                                    produto_id=produto.id
+                                ) }}">
+                                    Editar
+                                </a>
+
+                                {% if produto.ativo %}
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'produtos.inativar',
+                                            produto_id=produto.id
+                                        ) }}"
+                                    >
+                                        <button type="submit">
+                                            Inativar
+                                        </button>
+                                    </form>
+
+                                {% else %}
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'produtos.ativar',
+                                            produto_id=produto.id
+                                        ) }}"
+                                    >
+                                        <button type="submit">
+                                            Ativar
+                                        </button>
+                                    </form>
+
+                                {% endif %}
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    {% else %}
+
+        <p>
+            Nenhum produto cadastrado.
+        </p>
+
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Histórico de movimentações | StockFlow
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <span class="page-eyebrow">
+            OPERAÇÃO DO ESTOQUE
+        </span>
+
+        <h1>Histórico de movimentações</h1>
+
+        <p class="page-description">
+            Acompanhe as entradas e saídas registradas no estoque.
+        </p>
+    </div>
+
+    <a
+        href="{{ url_for('movimentacoes.nova') }}"
+        class="primary-action"
+    >
+        Nova movimentação
+    </a>
+</div>
+
+{% if movimentacoes %}
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Usuário</th>
+                <th>Observação</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for movimentacao in movimentacoes %}
+
+                <tr>
+
+                    <td>
+                        {{ movimentacao.realizado_em.strftime("%d/%m/%Y %H:%M") }}
+                    </td>
+
+                    <td>
+                        {{ movimentacao.produto.codigo }}
+                        -
+                        {{ movimentacao.produto.nome }}
+                    </td>
+
+                    <td>
+                        {% if movimentacao.tipo == "ENTRADA" %}
+                            Entrada
+                        {% else %}
+                            Saída
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ movimentacao.quantidade }}
+                    </td>
+
+                    <td>
+                        {{ movimentacao.usuario.nome }}
+                    </td>
+
+                    <td>
+                        {{ movimentacao.observacao or "-" }}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+{% else %}
+
+    <p>
+        Nenhuma movimentação registrada.
+    </p>
+
+{% endif %}
+
+{% endblock %}

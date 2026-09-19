@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Dashboard | StockFlow
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="dashboard-intro">
+        <div>
+            <span class="dashboard-eyebrow">
+                VISÃO GERAL DO ESTOQUE
+            </span>
+
+            <h1>StockFlow</h1>
+
+            <p class="dashboard-subtitle">
+                Controle de estoque
+            </p>
+        </div>
+
+        <p class="dashboard-greeting">
+            Olá, <strong>{{ session.get("usuario_nome") }}</strong>!
+        </p>
+    </div>
+
+
+
+    <section>
+
+    <h2>Resumo</h2>
+
+    <div class="dashboard-summary">
+
+        <article class="summary-card">
+
+            <span class="summary-label">
+                Produtos
+            </span>
+
+            <strong class="summary-value">
+                {{ total_produtos }}
+            </strong>
+
+            <span class="summary-description">
+                cadastrados
+            </span>
+
+        </article>
+
+
+        <article class="summary-card summary-card-warning">
+
+            <span class="summary-label">
+                Estoque baixo
+            </span>
+
+            <strong class="summary-value">
+                {{ produtos_estoque_baixo|length }}
+            </strong>
+
+            <span class="summary-description">
+                precisam de atenção
+            </span>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <span class="summary-label">
+                Movimentações
+            </span>
+
+            <strong class="summary-value">
+                {{ total_movimentacoes }}
+            </strong>
+
+            <span class="summary-description">
+                registradas
+            </span>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <span class="summary-label">
+                Usuários
+            </span>
+
+            <strong class="summary-value">
+                {{ total_usuarios }}
+            </strong>
+
+            <span class="summary-description">
+                cadastrados
+            </span>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+    <section>
+
+        <div class="section-heading">
+
+    <div>
+        <h2>Alertas de estoque</h2>
+            <p class="section-description">
+                Produtos que estão abaixo do estoque mínimo.
+            </p>
+        </div>
+
+        {% if produtos_estoque_baixo %}
+        <span class="status-badge status-warning">
+            {{ produtos_estoque_baixo|length }}
+            {% if produtos_estoque_baixo|length == 1 %}
+                produto requer atenção
+            {% else %}
+                produtos requerem atenção
+            {% endif %}
+        </span>
+    {% endif %}
+
+
+    </div>
+
+    {% if produtos_estoque_baixo %}
+
+            <div class="table-wrapper">
+                <table>
+
+
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Produto</th>
+                        <th>Estoque atual</th>
+                        <th>Estoque mínimo</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for produto in produtos_estoque_baixo %}
+
+                        <tr>
+
+                            <td>
+                                {{ produto.codigo }}
+                            </td>
+
+                            <td>
+                                {{ produto.nome }}
+                            </td>
+
+                            <td>
+                                {{ produto.quantidade_atual }}
+                            </td>
+
+                            <td>
+                                {{ produto.estoque_minimo }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+                </table>
+            </div>
+
+        {% else %}
+
+        <p class="empty-state empty-state-success">
+            <span class="empty-state-icon" aria-hidden="true">✓</span>
+            Nenhum produto está abaixo do estoque mínimo.
+        </p>
+
+    {% endif %}
+
+
+    </section>
+
+
+    <section>
+
+        <div class="section-heading">
+            <div>
+                <h2>Movimentações recentes</h2>
+
+                <p class="section-description">
+                    Últimas entradas e saídas registradas no estoque.
+                </p>
+            </div>
+        </div>
+
+        {% if movimentacoes_recentes %}
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Produto</th>
+                        <th>Tipo</th>
+                        <th>Quantidade</th>
+                        <th>Usuário</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for movimentacao in movimentacoes_recentes %}
+
+                        <tr>
+
+                            <td>
+                                {{
+                                    movimentacao.realizado_em.strftime(
+                                        "%d/%m/%Y %H:%M"
+                                    )
+                                }}
+                            </td>
+
+                            <td>
+                                {{ movimentacao.produto.codigo }}
+                                -
+                                {{ movimentacao.produto.nome }}
+                            </td>
+
+                            <td>
+                                {% if movimentacao.tipo == "ENTRADA" %}
+                                    <span class="movement-badge movement-entry">
+                                        ENTRADA
+                                    </span>
+                                {% else %}
+                                    <span class="movement-badge movement-exit">
+                                        SAÍDA
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ movimentacao.quantidade }}
+                            </td>
+
+                            <td>
+                                {{ movimentacao.usuario.nome }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <p>
+                Nenhuma movimentação registrada.
+            </p>
+
+        {% endif %}
+
+    </section>
+
+{% endblock %}

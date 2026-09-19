@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Usuários | StockFlow
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <span class="page-eyebrow">
+            ADMINISTRAÇÃO DO SISTEMA
+        </span>
+
+        <h1>Usuários</h1>
+
+        <p class="page-description">
+            Gerencie acessos, perfis e status dos usuários.
+        </p>
+    </div>
+
+    <a
+        href="{{ url_for('usuarios.novo') }}"
+        class="primary-action"
+    >
+        Novo usuário
+    </a>
+</div>
+
+{% if erro %}
+    <p>{{ erro }}</p>
+{% endif %}
+
+{% if usuarios %}
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Username</th>
+                <th>Perfil</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for usuario in usuarios %}
+
+                <tr>
+
+                    <td>
+                        {{ usuario.nome }}
+                    </td>
+
+                    <td>
+                        {{ usuario.username }}
+                    </td>
+
+                    <td>
+                        {% if usuario.perfil == "ADMIN" %}
+                            Administrador
+                        {% else %}
+                            Comum
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if usuario.ativo %}
+                            <span class="status-user status-user-active">
+                                Ativo
+                            </span>
+                        {% else %}
+                            <span class="status-user status-user-inactive">
+                                Inativo
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="{{ url_for(
+                                'usuarios.editar',
+                                usuario_id=usuario.id
+                            ) }}"
+                        >
+                            Editar
+                        </a>
+
+                        {% if usuario.ativo %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'usuarios.inativar',
+                                    usuario_id=usuario.id
+                                ) }}"
+                                onsubmit="return confirm(
+                                    'Tem certeza que deseja inativar este usuário?'
+                                );"
+                            >
+                                <button type="submit">
+                                    Inativar
+                                </button>
+                            </form>
+
+                        {% else %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'usuarios.ativar',
+                                    usuario_id=usuario.id
+                                ) }}"
+                                onsubmit="return confirm(
+                                    'Tem certeza que deseja ativar este usuário?'
+                                );"
+                            >
+                                <button type="submit">
+                                    Ativar
+                                </button>
+                            </form>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+{% else %}
+
+    <p>
+        Nenhum usuário cadastrado.
+    </p>
+
+{% endif %}
+
+{% endblock %}

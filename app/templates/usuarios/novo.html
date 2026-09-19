@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Novo usuário | StockFlow
+{% endblock %}
+
+{% block content %}
+
+<h1>Cadastrar usuário</h1>
+
+{% if erro %}
+    <p>{{ erro }}</p>
+{% endif %}
+
+<form method="POST">
+
+    <div>
+        <label for="nome">
+            Nome
+        </label>
+
+        <input
+            type="text"
+            id="nome"
+            name="nome"
+            value="{{ nome or '' }}"
+            required
+        >
+    </div>
+
+    <div>
+        <label for="username">
+            Username
+        </label>
+
+        <input
+            type="text"
+            id="username"
+            name="username"
+            value="{{ username or '' }}"
+            required
+        >
+    </div>
+
+    <div>
+        <label for="senha">
+            Senha
+        </label>
+
+        <input
+            type="password"
+            id="senha"
+            name="senha"
+            required
+        >
+    </div>
+
+    <div>
+        <label for="perfil">
+            Perfil
+        </label>
+
+        <select
+            id="perfil"
+            name="perfil"
+            required
+        >
+            <option
+                value="COMUM"
+                {% if perfil|default('COMUM') == 'COMUM' %}
+                    selected
+                {% endif %}
+            >
+                Comum
+            </option>
+
+            <option
+                value="ADMIN"
+                {% if perfil|default('COMUM') == 'ADMIN' %}
+                    selected
+                {% endif %}
+            >
+                Administrador
+            </option>
+        </select>
+    </div>
+
+    <button type="submit">
+        Cadastrar usuário
+    </button>
+
+</form>
+
+<p>
+    <a href="{{ url_for('usuarios.index') }}">
+        Voltar para usuários
+    </a>
+</p>
+
+{% endblock %}
