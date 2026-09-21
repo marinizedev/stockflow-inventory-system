@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     criado_em   DATETIME     NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (username),
-    CHECK (perfil IN ('ADMIN', 'COMUM'))
+    CHECK (perfil IN ('ADMIN', 'COMUM', 'DEMO'))
 );
 
 -- ---------------------------------------------------------
