@@ -129,3 +129,4 @@ def admin_required(view):
             ), 403
 
         return view(*args, **kwargs)
+    return wrapped_view

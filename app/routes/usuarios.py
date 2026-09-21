@@ -107,10 +107,7 @@ def ativar(usuario_id):
 
     return redirect(url_for("usuarios.index"))
 
-@usuarios_bp.route(
-    "/usuarios/<int:usuario_id>/editar",
-    methods=["GET", "POST"],
-)
+@usuarios_bp.route("/usuarios/<int:usuario_id>/editar", methods=["GET", "POST"])
 @admin_required
 def editar(usuario_id):
     """Exibe e processa a edição de um usuário."""
