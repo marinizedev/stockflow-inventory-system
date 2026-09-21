@@ -1,0 +1,50 @@
+name: CD / Verificação de deploy
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify-deployment:
+    name: Verificar aplicação publicada
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Aguardar o Render iniciar o deploy
+        run: sleep 30
+
+      - name: Verificar disponibilidade da aplicação
+        env:
+          APP_URL: https://stockflow-inventory-system-zaqc.onrender.com/login
+        run: |
+          max_attempts=10
+
+          for attempt in $(seq 1 "$max_attempts" ); do
+            echo "Tentativa $attempt de $max_attempts"
+
+            status_code=$(curl \
+              --silent \
+              --output /dev/null \
+              --write-out "%{http_code}" \
+              --max-time 20 \
+              "$APP_URL" || true )
+
+            echo "Código HTTP recebido: $status_code"
+
+            if [ "$status_code" = "200" ]; then
+              echo "Aplicação disponível e respondendo corretamente."
+              exit 0
+            fi
+
+            if [ "$attempt" -lt "$max_attempts" ]; then
+              echo "Aplicação ainda não está pronta. Aguardando 30 segundos..."
+              sleep 30
+            fi
+          done
+
+          echo "A aplicação não respondeu com HTTP 200 dentro do tempo esperado."
+          exit 1
