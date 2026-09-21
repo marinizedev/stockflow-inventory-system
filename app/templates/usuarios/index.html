@@ -62,9 +62,12 @@
                     <td>
                         {% if usuario.perfil == "ADMIN" %}
                             Administrador
+                        {% elif usuario.perfil == "DEMO" %}
+                            Demonstração
                         {% else %}
                             Comum
                         {% endif %}
+
                     </td>
 
                     <td>

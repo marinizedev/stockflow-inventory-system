@@ -78,6 +78,23 @@ def login_required(view):
 
     return wrapped_view
 
+def escrita_required(view):
+    """Exige autenticação e bloqueia o perfil DEMO em operações de escrita."""
+
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        usuario = _usuario_atual()
+
+        if usuario is None:
+            return redirect(url_for("auth.login"))
+
+        if usuario.perfil == "DEMO":
+            return render_template("403.html"), 403
+
+        return view(*args, **kwargs)
+
+    return wrapped_view
+
 
 def admin_required(view):
     """Exige que o usuário autenticado seja administrador."""
@@ -112,5 +129,3 @@ def admin_required(view):
             ), 403
 
         return view(*args, **kwargs)
-
-    return wrapped_view

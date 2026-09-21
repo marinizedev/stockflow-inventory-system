@@ -102,6 +102,8 @@
                             class="profile-badge
                             {% if session.get('usuario_perfil') == 'ADMIN' %}
                                 admin
+                            {% elif session.get('usuario_perfil') == 'DEMO' %}
+                                demo
                             {% else %}
                                 comum
                             {% endif %}"

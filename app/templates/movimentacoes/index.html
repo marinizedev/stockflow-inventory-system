@@ -19,12 +19,14 @@
         </p>
     </div>
 
-    <a
-        href="{{ url_for('movimentacoes.nova') }}"
-        class="primary-action"
-    >
-        Nova movimentação
-    </a>
+    {% if session.get("usuario_perfil") != "DEMO" %}
+        <a
+            href="{{ url_for('movimentacoes.nova') }}"
+            class="primary-action"
+        >
+            Nova movimentação
+        </a>
+    {% endif %}
 </div>
 
 {% if movimentacoes %}

@@ -30,7 +30,7 @@ def criar_usuario(
     if not senha:
         raise ValueError("A senha é obrigatória.")
 
-    if perfil not in {"ADMIN", "COMUM"}:
+    if perfil not in {"ADMIN", "COMUM", "DEMO"}:
         raise ValueError("Perfil de usuário inválido.")
 
     usuario_existente = Usuario.query.filter_by(
@@ -205,7 +205,7 @@ def editar_usuario(
     if not username:
         raise ValueError("O username é obrigatório.")
 
-    if perfil not in {"ADMIN", "COMUM"}:
+    if perfil not in {"ADMIN", "COMUM", "DEMO"}:
         raise ValueError("Perfil de usuário inválido.")
 
     usuario_existente = Usuario.query.filter(
@@ -220,7 +220,7 @@ def editar_usuario(
 
     if (
         usuario.perfil == "ADMIN"
-        and perfil == "COMUM"
+        and perfil != "ADMIN"
         and usuario.ativo
     ):
         quantidade_outros_admins = Usuario.query.filter(

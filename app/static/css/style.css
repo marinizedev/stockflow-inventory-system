@@ -579,6 +579,10 @@ main > p:has(+ form) {
     color: #716a76;
 }
 
+.profile-badge.demo {
+    background-color: #e8eefc;
+    color: #3156a3;
+}
 
 /* ---------------------------------------------------------
    SAIR

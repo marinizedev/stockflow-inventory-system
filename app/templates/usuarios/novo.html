@@ -82,7 +82,18 @@
             >
                 Administrador
             </option>
+
+            <option
+                value="DEMO"
+                {% if perfil|default('COMUM') == 'DEMO' %}
+                    selected
+                {% endif %}
+            >
+                Demonstração
+            </option>
+
         </select>
+
     </div>
 
     <button type="submit">

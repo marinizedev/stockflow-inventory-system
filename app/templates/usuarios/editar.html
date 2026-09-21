@@ -69,6 +69,15 @@
             >
                 Administrador
             </option>
+
+            <option
+                value="DEMO"
+                {% if perfil == "DEMO" %}
+                    selected
+                {% endif %}
+            >
+                Demonstração
+            </option>
         </select>
     </div>
 

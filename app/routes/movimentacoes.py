@@ -7,7 +7,11 @@ from flask import (
     url_for,
 )
 
-from app.auth.decorators import login_required
+from app.auth.decorators import (
+    escrita_required,
+    login_required,
+)
+
 from app.models.movimentacao import Movimentacao
 from app.models.produto import Produto
 from app.models.usuario import Usuario
@@ -44,7 +48,7 @@ def index():
     "/movimentacoes/nova",
     methods=["GET", "POST"],
 )
-@login_required
+@escrita_required
 def nova():
     """Exibe e processa uma nova movimentação."""
 
