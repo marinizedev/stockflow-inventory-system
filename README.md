@@ -1,396 +1,297 @@
 # StockFlow
 
-Sistema web de controle de estoque desenvolvido em Python com Flask, SQLAlchemy e SQLite, com autenticação de usuários, controle de acesso por perfil, registro de produtos, movimentações de entrada e saída e alertas de estoque mínimo.
+[![CI](https://github.com/marinizedev/stockflow-inventory-system/actions/workflows/ci.yml/badge.svg)](https://github.com/marinizedev/stockflow-inventory-system/actions/workflows/ci.yml)
+[![Security](https://github.com/marinizedev/stockflow-inventory-system/actions/workflows/security.yml/badge.svg)](https://github.com/marinizedev/stockflow-inventory-system/actions/workflows/security.yml)
+[![CD](https://github.com/marinizedev/stockflow-inventory-system/actions/workflows/cd.yml/badge.svg)](https://github.com/marinizedev/stockflow-inventory-system/actions/workflows/cd.yml)
 
-O projeto foi desenvolvido com foco em organização de código, separação de responsabilidades, validação das regras de negócio e integridade dos dados.
+Sistema web de controle de estoque desenvolvido em **Python e Flask**, com autenticação,
+autorização por perfil, cadastro de produtos, movimentações de entrada e saída, alertas de
+estoque mínimo, testes automatizados e deploy em produção.
+
+O projeto começou como uma aplicação acadêmica local e evoluiu para uma aplicação publicada
+na nuvem, utilizando **PostgreSQL no Neon**, **Gunicorn**, **Render** e um pipeline de
+**CI/CD com GitHub Actions**.
+
+---
+
+## Índice
+
+- [Demonstração](#demonstração)
+  - [Acesso público de demonstração](#acesso-público-de-demonstração)
+  - [Demonstração visual](#demonstração-visual)
+- [Sobre o projeto](#sobre-o-projeto)
+- [Objetivo](#objetivo)
+- [Funcionalidades](#funcionalidades)
+  - [Autenticação e sessão](#autenticação-e-sessão)
+  - [Usuários](#usuários)
+  - [Produtos](#produtos)
+  - [Movimentações](#movimentações)
+  - [Dashboard](#dashboard)
+- [Perfis de acesso](#perfis-de-acesso)
+- [Regras de negócio](#regras-de-negócio)
+- [Arquitetura](#arquitetura)
+- [Modelo de dados](#modelo-de-dados)
+- [Segurança e integridade](#segurança-e-integridade)
+- [Testes automatizados](#testes-automatizados)
+- [CI/CD](#cicd)
+- [Tecnologias](#tecnologias)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Executar localmente](#executar-localmente)
+- [Configuração por ambiente](#configuração-por-ambiente)
+  - [Render](#render)
+  - [Neon](#neon)
+- [Decisões técnicas](#decisões-técnicas)
+- [Evolução do projeto](#evolução-do-projeto)
+- [Status](#status)
+- [Autoria](#autoria)
+- [Referências](#referências)
+- [Licença](#licença)
+
+---
+
+## Demonstração
+
+**Aplicação publicada:** [acessar o StockFlow](https://stockflow-inventory-system-zaqc.onrender.com)
+
+O serviço gratuito do Render pode ser suspenso após um período de inatividade. Por isso, o primeiro acesso depois de uma pausa pode levar alguns segundos.
+
+### Acesso público de demonstração
+
+O ambiente publicado possui um usuário exclusivo para visitantes, com perfil `DEMO` e acesso somente para leitura. Ele permite navegar pelo sistema e conhecer suas principais telas sem alterar os dados compartilhados da demonstração.
+
+| Usuário | Senha | Perfil | Acesso |
+|---|---|---|---|
+| `visitante.demo` | `StockFlowDemo2026!` | `DEMO` | Consulta do dashboard, produtos e movimentações |
+
+O perfil `DEMO` não pode cadastrar, editar ou inativar usuários e produtos, nem registrar novas movimentações. A credencial acima é exclusiva do ambiente público do StockFlow e não deve ser reutilizada em outros serviços ou projetos.
+
+### Demonstração visual
+
+As imagens abaixo são a vitrine visual do projeto. Elas apresentam a identidade visual, a organização das telas e os principais recursos da aplicação. As capturas não representam necessariamente as permissões do usuário `DEMO` e podem ter sido realizadas em um ambiente local de demonstração com dados fictícios.
+
+#### Tela de login
+
+![Tela de login do StockFlow](docs/images/login.png)
+
+#### Dashboard
+
+![Dashboard do StockFlow](docs/images/dashboard.png)
+
+#### Catálogo de produtos
+
+![Catálogo de produtos do StockFlow](docs/images/produtos.png)
+
+#### Histórico de movimentações
+
+![Histórico de movimentações do StockFlow](docs/images/movimentacoes.png)
 
 ---
 
 ## Sobre o projeto
 
-O **StockFlow** é uma aplicação web para controle de estoque, desenvolvida para centralizar o cadastro de produtos e o acompanhamento das movimentações realizadas no estoque.
+O StockFlow centraliza o cadastro e o acompanhamento de produtos em estoque. O sistema permite registrar entradas e saídas, consultar o saldo atual, identificar itens abaixo do estoque mínimo e controlar o acesso às funcionalidades administrativas.
 
-A aplicação permite registrar entradas e saídas de produtos, consultar o estoque atual, identificar produtos abaixo do estoque mínimo e controlar o acesso às funcionalidades de acordo com o perfil do usuário.
-
-Além das funcionalidades operacionais, o projeto foi estruturado com uma camada de serviços responsável pelas regras de negócio, modelos para representação dos dados, rotas para integração com a interface e uma suíte de testes automatizados.
+A aplicação foi estruturada com separação entre rotas, serviços e modelos. As regras de negócio ficam concentradas na camada de serviços, facilitando a manutenção, os testes automatizados e a evolução do sistema.
 
 ---
 
 ## Objetivo
 
-Desenvolver uma aplicação de controle de estoque que permita:
-
-* Controlar produtos e seus respectivos estoques;
-* Registrar movimentações de entrada e saída;
-* Evitar saídas que resultem em estoque negativo;
-* Identificar produtos abaixo do estoque mínimo;
-* Controlar o acesso por perfil de usuário;
-* Proteger as senhas por meio de hash;
-* Manter o histórico das movimentações realizadas;
-* Garantir integridade entre usuários, produtos e movimentações;
-* Validar as principais regras de negócio de forma automatizada.
+O StockFlow tem como objetivo centralizar o controle de produtos, estoques e movimentações em uma aplicação web segura e organizada. A solução busca preservar o histórico das operações, impedir inconsistências como estoque negativo, identificar produtos abaixo do nível mínimo e aplicar permissões conforme o perfil de cada usuário.
 
 ---
 
 ## Funcionalidades
 
-### Autenticação
+### Autenticação e sessão
 
-* Login de usuários;
-* Validação de usuário e senha;
-* Verificação de usuário ativo;
-* Controle de sessão;
-* Logout;
-* Senhas armazenadas utilizando hash;
-* Bloqueio de acesso a usuários inativos.
+- Login e logout.
+- Verificação de usuário ativo.
+- Senhas armazenadas como hash.
+- Controle de sessão para áreas protegidas.
+- Redirecionamento de usuários não autenticados.
 
-### Controle de usuários
+### Usuários
 
-Disponível exclusivamente para usuários com perfil **ADMIN**.
+A área de usuários é exclusiva para o perfil `ADMIN`.
 
-* Cadastro de usuários;
-* Edição de usuários;
-* Alteração de nome e username;
-* Alteração de perfil;
-* Ativação e inativação de usuários;
-* Controle de usuários ADMIN e COMUM;
-* Proteção contra a inativação do último administrador ativo;
-* Impedimento de um usuário inativar a própria conta.
+- Cadastro e edição de usuários.
+- Alteração de nome, username e perfil.
+- Perfis `ADMIN`, `COMUM` e `DEMO`.
+- Ativação e inativação lógica.
+- Proteção contra a inativação do último administrador ativo.
+- Impedimento de auto-inativação.
+- Bloqueio do acesso administrativo após rebaixamento de um administrador.
 
-### Controle de produtos
+### Produtos
 
-* Cadastro de produtos;
-* Edição de produtos;
-* Ativação e inativação;
-* Código de produto único;
-* Controle de quantidade atual;
-* Definição de estoque mínimo;
-* Cadastro de preço;
-* Cadastro de categoria e descrição;
-* Validação de valores não negativos.
+- Cadastro e edição de produtos.
+- Código único por produto.
+- Categoria e descrição opcional.
+- Preço e estoque mínimo.
+- Ativação e inativação lógica.
+- Validação de valores não negativos.
+- Preservação do estoque atual durante a edição cadastral.
 
-A quantidade atual do estoque não pode ser alterada diretamente na edição do produto. As alterações de estoque são realizadas exclusivamente por meio de movimentações.
+O estoque atual não é alterado diretamente na edição do produto. As alterações de saldo ocorrem exclusivamente por meio de movimentações.
 
 ### Movimentações
 
-* Registro de entradas;
-* Registro de saídas;
-* Registro da quantidade movimentada;
-* Registro do produto;
-* Registro do usuário responsável;
-* Registro de observações;
-* Histórico de movimentações;
-* Bloqueio de movimentações para produtos inativos;
-* Bloqueio de quantidades iguais ou inferiores a zero;
-* Bloqueio de saídas que deixariam o estoque negativo.
+- Registro de entradas e saídas.
+- Associação com produto e usuário responsável.
+- Registro de quantidade, data e observação.
+- Bloqueio de movimentações para produtos inativos.
+- Bloqueio de quantidades inválidas.
+- Prevenção de saídas superiores ao estoque disponível.
+- Atualização automática do estoque.
+- Bloqueio de operações de escrita para o perfil `DEMO`.
 
 ### Dashboard
 
-O painel inicial apresenta uma visão resumida do estoque, incluindo:
-
-* Quantidade de produtos;
-* Quantidade de produtos abaixo do estoque mínimo;
-* Quantidade de movimentações;
-* Quantidade de usuários;
-* Alertas de estoque baixo;
-* Movimentações recentes.
+- Total de produtos cadastrados.
+- Total de produtos abaixo do estoque mínimo.
+- Total de movimentações.
+- Total de usuários.
+- Alertas de estoque.
+- Movimentações recentes.
 
 ---
 
 ## Perfis de acesso
 
-O StockFlow utiliza dois perfis de usuário:
+| Perfil | Permissões |
+|---|---|
+| `ADMIN` | Gerencia usuários, produtos e movimentações. |
+| `COMUM` | Consulta produtos e realiza movimentações de estoque. Não acessa o gerenciamento de usuários. |
+| `DEMO` | Acesso somente para leitura ao dashboard, produtos e histórico de movimentações. |
 
-| Perfil    | Permissões                                             |
-| --------- | ------------------------------------------------------ |
-| **ADMIN** | Gerenciar usuários, produtos e movimentações           |
-| **COMUM** | Consultar produtos e realizar movimentações de estoque |
-
-O controle de autorização é realizado no backend, considerando o estado atual do usuário no banco de dados.
+A autorização é verificada no backend. A interface não é a única responsável por ocultar funcionalidades protegidas.
 
 ---
 
 ## Regras de negócio
 
-Entre as principais regras implementadas estão:
-
-1. O nome, username e senha são obrigatórios no cadastro de usuários.
+1. Nome, username e senha são obrigatórios no cadastro de usuários.
 2. O username deve ser único.
-3. As senhas não são armazenadas em texto puro.
-4. O perfil do usuário deve ser `ADMIN` ou `COMUM`.
-5. Apenas usuários ADMIN podem gerenciar usuários.
+3. Senhas não são armazenadas em texto puro.
+4. O perfil deve ser `ADMIN`, `COMUM` ou `DEMO`.
+5. Somente usuários `ADMIN` podem gerenciar usuários.
 6. Usuários inativos não podem realizar login.
-7. O sistema deve manter pelo menos um ADMIN ativo.
-8. O último ADMIN ativo não pode ser inativado.
+7. Deve existir pelo menos um administrador ativo.
+8. O último administrador ativo não pode ser inativado.
 9. Um usuário não pode inativar a própria conta.
-10. Um ADMIN pode ser rebaixado para COMUM somente quando existir outro ADMIN ativo.
-11. O código do produto deve ser único.
-12. A quantidade atual do estoque não pode ser editada diretamente no cadastro do produto.
-13. A quantidade inicial e o estoque mínimo não podem ser negativos.
-14. O preço não pode ser negativo.
-15. A quantidade de uma movimentação deve ser maior que zero.
-16. Produtos inativos não podem receber movimentações.
-17. Uma saída não pode resultar em estoque negativo.
-18. Toda movimentação deve estar vinculada a um produto e a um usuário.
-19. O tipo de movimentação deve ser `ENTRADA` ou `SAIDA`.
-20. O alerta de estoque baixo ocorre quando a quantidade atual é menor que o estoque mínimo.
-21. Usuários e produtos são inativados logicamente, preservando seus registros no banco de dados.
-22. O SQLite utiliza Foreign Keys para garantir a integridade referencial.
+10. Um administrador só pode ser rebaixado quando existir outro administrador ativo.
+11. O perfil `DEMO` não pode realizar operações de escrita.
+12. O código do produto deve ser único.
+13. O estoque atual não pode ser alterado diretamente na edição cadastral.
+14. Quantidades e estoque mínimo não podem ser negativos.
+15. O preço não pode ser negativo.
+16. A quantidade movimentada deve ser maior que zero.
+17. Produtos inativos não podem receber movimentações.
+18. Uma saída não pode gerar estoque negativo.
+19. Toda movimentação deve possuir produto e usuário relacionados.
+20. O tipo deve ser `ENTRADA` ou `SAIDA`.
+21. Produtos com saldo menor ao estoque mínimo aparecem nos alertas.
+22. Usuários e produtos são inativados logicamente, preservando o histórico.
 
 ---
 
 ## Arquitetura
 
-O projeto utiliza uma organização baseada na separação de responsabilidades:
-
 ```text
+Navegador
+   ↓
 Routes
-  ↓
-Services
-  ↓
-Models
-  ↓
-Database
+   ↓
+Services — regras de negócio
+   ↓
+Models — entidades SQLAlchemy
+   ↓
+Banco de dados
 ```
 
-### Routes
-
-Responsáveis pelo recebimento das requisições, navegação entre páginas e integração entre a interface e a camada de serviços.
-
-### Services
-
-Concentram as regras de negócio da aplicação, como:
-
-* validações;
-* criação e edição de registros;
-* ativação e inativação;
-* controle das movimentações;
-* atualização do estoque;
-* aplicação das regras relacionadas aos perfis de usuário.
-
-### Models
-
-Representam as entidades persistidas no banco de dados:
-
-* `Usuario`
-* `Produto`
-* `Movimentacao`
-
-### Templates
-
-A interface utiliza HTML com Jinja2, com um template base compartilhado entre as páginas para manter consistência visual e evitar duplicação de estrutura.
-
-### Static
-
-Contém os arquivos de apresentação da aplicação, atualmente com uma folha de estilos CSS centralizada.
+- **Routes:** recebem requisições e controlam a navegação.
+- **Services:** concentram validações e regras de negócio.
+- **Models:** representam `Usuario`, `Produto` e `Movimentacao`.
+- **Templates:** utilizam HTML e Jinja2.
+- **Static:** contém os estilos CSS.
+- **Banco de dados:** utiliza SQLite localmente e PostgreSQL no ambiente publicado, conforme `DATABASE_URL`.
 
 ---
 
 ## Modelo de dados
 
-O banco de dados é composto pelas seguintes entidades principais:
+### `usuarios`
 
-### Usuario
+Armazena identidade, credenciais protegidas, perfil de acesso, status e data de criação.
 
-Representa os usuários do sistema.
+### `produtos`
 
-Principais atributos:
+Armazena código, nome, descrição, categoria, preço, saldo atual, estoque mínimo, status e data de criação.
 
-* `id`
-* `nome`
-* `username`
-* `senha_hash`
-* `perfil`
-* `ativo`
-* `criado_em`
+### `movimentacoes`
 
-### Produto
-
-Representa os produtos controlados pelo estoque.
-
-Principais atributos:
-
-* `id`
-* `codigo`
-* `nome`
-* `descricao`
-* `categoria`
-* `quantidade_atual`
-* `estoque_minimo`
-* `preco`
-* `ativo`
-* `criado_em`
-
-### Movimentacao
-
-Registra as alterações realizadas no estoque.
-
-Principais atributos:
-
-* `id`
-* `produto_id`
-* `usuario_id`
-* `tipo`
-* `quantidade`
-* `observacao`
-* `realizado_em`
-
-### Relacionamentos
+Armazena produto, usuário responsável, tipo, quantidade, observação e data da operação.
 
 ```text
-Usuario
-   │
-   │ 1:N
-   ▼
-Movimentacao
-   ▲
-   │ N:1
-   │
-Produto
+Usuario 1 ──── N Movimentacao N ──── 1 Produto
 ```
-
-Um usuário pode realizar várias movimentações.
-
-Um produto pode possuir várias movimentações.
-
-Cada movimentação pertence a um único usuário e a um único produto.
 
 ---
 
 ## Segurança e integridade
 
-O projeto possui algumas medidas de segurança e integridade implementadas no backend.
-
-### Senhas
-
-As senhas dos usuários são armazenadas utilizando hash por meio das ferramentas de segurança do Werkzeug.
-
-A aplicação não armazena a senha original no banco de dados.
-
-### Controle de sessão
-
-Após o login, a aplicação mantém na sessão as informações necessárias para identificar o usuário autenticado.
-
-As áreas protegidas verificam a existência de uma sessão válida antes de permitir o acesso.
-
-### Autorização
-
-Além da autenticação, o sistema diferencia as permissões de acordo com o perfil do usuário.
-
-As verificações de autorização são realizadas no backend.
-
-### Integridade referencial
-
-O SQLite é configurado para utilizar:
-
-```sql
-PRAGMA foreign_keys = ON;
-```
-
-Dessa forma, os relacionamentos entre usuários, produtos e movimentações são protegidos pelo banco de dados.
-
----
-
-## Validações
-
-As validações são realizadas principalmente na camada de serviços, evitando que regras importantes dependam exclusivamente da interface.
-
-Entre as validações implementadas estão:
-
-* Campos obrigatórios;
-* Valores numéricos não negativos;
-* Username duplicado;
-* Código de produto duplicado;
-* Perfil inválido;
-* Produto inativo;
-* Usuário inválido;
-* Tipo de movimentação inválido;
-* Quantidade inválida;
-* Saída superior ao estoque disponível;
-* Tentativa de inativação do último ADMIN;
-* Tentativa de inativação da própria conta.
+- Senhas protegidas com Werkzeug.
+- Segredos configurados por variáveis de ambiente.
+- `DATABASE_URL` mantida fora do repositório.
+- Autorização aplicada no backend.
+- Controle de sessão para páginas protegidas.
+- Perfil público `DEMO` com acesso somente para leitura.
+- Integridade referencial entre as entidades.
+- Inativação lógica em vez de exclusão física.
+- Validação de dados na camada de serviços.
+- Auditoria automatizada de dependências com `pip-audit`.
 
 ---
 
 ## Testes automatizados
 
-O projeto utiliza **pytest** para validação automatizada das principais regras de negócio.
-
-A suíte atual possui:
-
-**43 testes automatizados — 43 aprovados.**
-
-Os testes estão organizados por domínio:
+O projeto utiliza **pytest** e possui **43 testes automatizados aprovados**:
 
 ```text
-tests/
-├── conftest.py
-├── test_movimentacao_service.py
-├── test_produto_service.py
-└── test_usuario_service.py
+43 passed
 ```
 
-### Cobertura funcional dos testes
+A suíte cobre autenticação, hash de senha, permissões, proteção do último administrador, cadastro e edição de produtos, validações de valores, entradas e saídas, atualização do estoque e prevenção de saldo negativo.
 
-#### Usuários
-
-Testes relacionados a:
-
-* criação;
-* validação de campos;
-* hash de senha;
-* username duplicado;
-* ativação;
-* inativação;
-* proteção do último ADMIN;
-* proteção contra auto-inativação;
-* edição;
-* alteração de perfil.
-
-#### Produtos
-
-Testes relacionados a:
-
-* criação;
-* validação de campos;
-* código duplicado;
-* valores negativos;
-* edição;
-* preservação do estoque atual;
-* ativação;
-* inativação.
-
-#### Movimentações
-
-Testes relacionados a:
-
-* entrada;
-* saída;
-* atualização do estoque;
-* associação entre produto e usuário;
-* observação;
-* quantidade inválida;
-* tipo inválido;
-* produto inativo;
-* usuário inválido;
-* prevenção de estoque negativo.
-
-Os testes utilizam um banco SQLite em memória, evitando alterações no banco utilizado pela aplicação durante a execução da suíte.
+Os testes utilizam um banco SQLite em memória e não alteram o banco da aplicação.
 
 ---
 
-## Tecnologias utilizadas
+## CI/CD
 
-* **Python 3.12** ou superior
-* **Flask**
-* **Flask-SQLAlchemy**
-* **SQLAlchemy**
-* **SQLite**
-* **Jinja2**
-* **HTML5**
-* **CSS3**
-* **pytest**
-* **Werkzeug**
+O repositório utiliza GitHub Actions para validar o código e acompanhar a publicação.
+
+- **CI:** executa a suíte de testes a cada pull request.
+- **Security:** audita as dependências com `pip-audit`.
+- **CD:** o Render realiza deploy automático após push na branch `main`; depois, o workflow verifica a rota pública `/login` com um smoke test HTTP.
+
+```text
+Pull Request → CI + Security → Merge na main → Deploy no Render → Smoke test
+```
+
+---
+
+## Tecnologias
+
+- Python, Flask, Flask-SQLAlchemy e SQLAlchemy.
+- PostgreSQL no Neon.
+- SQLite para desenvolvimento local e testes.
+- Psycopg com suporte binário para PostgreSQL.
+- Gunicorn para produção.
+- Jinja2, HTML5 e CSS3.
+- Werkzeug e Pytest.
+- GitHub Actions e Render.
 
 ---
 
@@ -399,56 +300,32 @@ Os testes utilizam um banco SQLite em memória, evitando alterações no banco u
 ```text
 stockflow/
 ├── app/
-│   ├── auth/
-│   │   └── decorators.py
-│   │
+│   ├── auth/decorators.py
 │   ├── models/
-│   │   ├── movimentacao.py
-│   │   ├── produto.py
-│   │   └── usuario.py
-│   │
 │   ├── routes/
-│   │   ├── auth.py
-│   │   ├── dashboard.py
-│   │   ├── movimentacoes.py
-│   │   ├── produtos.py
-│   │   └── usuarios.py
-│   │
 │   ├── services/
-│   │   ├── movimentacao_service.py
-│   │   ├── produto_service.py
-│   │   └── usuario_service.py
-│   │
-│   ├── static/
-│   │   └── css/
-│   │       └── style.css
-│   │
+│   ├── static/css/style.css
 │   ├── templates/
-│   │   ├── movimentacoes/
-│   │   ├── produtos/
-│   │   ├── usuarios/
-│   │   ├── 403.html
-│   │   ├── base.html
-│   │   ├── dashboard.html
-│   │   └── login.html
-│   │
-│   └── __init__.py
+│   ├── __init__.py
+│   └── logging_config.py
 │
-├── database/
-│   ├── schema.sql
-│   └── stockflow.db
-│
+├── database/schema.sql
+├── docs/images/
 ├── tests/
-│   ├── conftest.py
-│   ├── test_movimentacao_service.py
-│   ├── test_produto_service.py
-│   └── test_usuario_service.py
+├── .github/workflows/
+│   ├── ci.yml
+│   ├── security.yml
+│   └── cd.yml
 │
+├── .env.example
+├── .gitattributes
 ├── .gitignore
 ├── config.py
 ├── create_admin.py
 ├── init_db.py
+├── LICENSE
 ├── pytest.ini
+├── requirements-production.txt
 ├── requirements.txt
 ├── run.py
 └── README.md
@@ -456,67 +333,48 @@ stockflow/
 
 ---
 
-## Como executar
+## Executar localmente
 
-### 1. Criar o ambiente virtual
+### Requisitos
 
-No terminal:
+- Python 3.12 ou superior.
+- Git.
+- PowerShell, Bash ou terminal compatível.
+
+### Instalação
 
 ```bash
+git clone https://github.com/marinizedev/stockflow-inventory-system.git
+cd stockflow-inventory-system
 python -m venv .venv
 ```
 
-### 2. Ativar o ambiente virtual
+No Windows PowerShell:
 
-No Windows:
-
-```bash
-.venv\Scripts\activate
+```powershell
+.\.venv\Scripts\Activate.ps1
 ```
 
-### 3. Instalar as dependências
+Instale as dependências e inicialize o banco:
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 4. Inicializar o banco de dados
-
-```bash
 python init_db.py
-```
-
-Esse comando cria as tabelas necessárias para a aplicação.
-
-### 5. Criar o usuário administrador
-
-Execute o script de criação do administrador:
-
-```bash
 python create_admin.py
-```
-
-Informe os dados solicitados no terminal.
-
-### 6. Executar a aplicação
-
-```bash
 python run.py
 ```
 
-Após iniciar a aplicação, acesse o endereço local informado pelo Flask no terminal.
+Acesse `http://127.0.0.1:5000`.
 
----
+A execução local cria um banco SQLite independente e inicialmente vazio. O arquivo do banco não é versionado por segurança. Depois de executar `init_db.py`, é necessário criar um administrador com `create_admin.py` e cadastrar os dados desejados.
 
-## Executando os testes
+Os dados da instalação local, do ambiente de produção e de cada clone do repositório são independentes. O repositório contém o código e o esquema da aplicação, mas não contém usuários, senhas, produtos ou movimentações pessoais.
 
-Com o ambiente virtual ativado:
+### Testes
 
 ```bash
 pytest -v
 ```
-
-O arquivo `pytest.ini` já configura a raiz do projeto no caminho de importação (`pythonpath = .`), então o comando acima funciona diretamente, sem precisar de `python -m pytest` nem de configurar `PYTHONPATH` manualmente.
 
 Resultado esperado:
 
@@ -524,88 +382,116 @@ Resultado esperado:
 43 passed
 ```
 
-Os testes utilizam um banco SQLite em memória e não alteram o banco de dados utilizado pela aplicação.
-
 ---
 
-## Banco de dados
-
-O projeto utiliza **SQLite** como banco de dados.
-
-O arquivo principal está localizado em:
+## Configuração por ambiente
 
 ```text
-database/stockflow.db
+DATABASE_URL ausente → SQLite local
+DATABASE_URL definida → PostgreSQL configurado
 ```
 
-O projeto também possui o script:
+O arquivo `.env.example` documenta os nomes das variáveis:
+
+```env
+DATABASE_URL=
+STOCKFLOW_SECRET_KEY=
+LOG_LEVEL=INFO
+```
+
+O `.env` real não deve ser versionado. No Render, as variáveis são cadastradas diretamente em **Environment Variables**.
+
+Para executar localmente com SQLite, mantenha `DATABASE_URL` ausente no ambiente. Uma variável global apontando para outro banco pode fazer a aplicação tentar usar uma conexão externa indevida.
+
+### Render
+
+- **Build Command:** `pip install -r requirements-production.txt`
+- **Start Command:** `gunicorn run:app`
+- **Branch:** `main`
+- **Runtime:** Python 3
+
+O arquivo `requirements-production.txt` contém:
 
 ```text
-database/schema.sql
+-r requirements.txt
+gunicorn
 ```
 
-contendo a estrutura SQL das tabelas.
+### Neon
+
+O ambiente publicado utiliza PostgreSQL gerenciado no Neon. A connection string é fornecida ao Render por meio de `DATABASE_URL` e não deve ser colocada no código, no README, em capturas de tela ou no GitHub.
 
 ---
 
 ## Decisões técnicas
 
-### Separação entre Routes e Services
+### Separação entre rotas e serviços
 
-As regras de negócio foram concentradas na camada de serviços em vez de serem distribuídas diretamente pelas rotas.
+As regras de negócio ficam nos serviços, e não diretamente nas rotas. Isso reduz o acoplamento entre HTTP e domínio, facilita os testes e torna a aplicação mais simples de evoluir.
 
-Essa decisão facilita:
+### Estoque controlado por movimentações
 
-* manutenção;
-* reutilização das regras;
-* testes automatizados;
-* leitura do código;
-* evolução futura da aplicação.
+O saldo não é alterado silenciosamente durante a edição do produto. Entradas e saídas preservam o histórico das operações.
 
-### Controle de estoque por movimentações
+### Inativação lógica
 
-A quantidade atual do produto não é alterada diretamente durante sua edição.
+Usuários e produtos são inativados em vez de excluídos fisicamente, preservando relacionamentos e histórico.
 
-Alterações de estoque acontecem exclusivamente por meio de movimentações de entrada e saída.
+### Perfil público de demonstração
 
-Essa abordagem mantém o histórico das operações e evita alterações silenciosas no saldo do estoque.
+O perfil `DEMO` foi criado para permitir que visitantes naveguem pela aplicação publicada sem receber permissões de alteração no banco compartilhado. A regra é aplicada no backend e complementada pela ocultação dos controles de escrita na interface.
 
-### Inativação em vez de exclusão
+### Configuração por ambiente
 
-Usuários e produtos são inativados em vez de serem fisicamente excluídos.
-
-Isso preserva os registros existentes e evita a perda de informações relacionadas ao histórico da aplicação.
-
-### Banco de testes isolado
-
-A suíte de testes utiliza SQLite em memória.
-
-Dessa forma, os testes podem criar e destruir seus próprios dados sem modificar o banco utilizado pela aplicação.
+SQLite é utilizado no desenvolvimento local e PostgreSQL no ambiente publicado. A escolha é feita pela presença de `DATABASE_URL`.
 
 ---
 
-## Status do projeto
+## Evolução do projeto
 
-**Concluído — versão acadêmica funcional.**
-
-O sistema possui as funcionalidades propostas, regras de negócio implementadas, interface web, persistência em banco de dados e testes automatizados.
-
----
-
-## Considerações finais
-
-O StockFlow foi desenvolvido com foco não apenas na implementação das funcionalidades solicitadas, mas também na organização interna da aplicação e na aplicação de regras de negócio de forma consistente.
-
-A separação entre rotas, serviços e modelos permite que a aplicação seja compreendida e mantida com maior facilidade, enquanto os testes automatizados ajudam a verificar o comportamento das principais operações do sistema.
-
-O projeto também foi estruturado considerando possibilidades de evolução futura, como ampliação das funcionalidades, melhoria da interface, novos relatórios e substituição do banco SQLite por uma solução adequada a ambientes de produção.
+1. Implementação acadêmica funcional com Flask e SQLite.
+2. Organização em rotas, serviços e modelos.
+3. Autenticação e autorização por perfil.
+4. Testes automatizados das regras de negócio.
+5. Logging estruturado.
+6. CI e auditoria de dependências.
+7. PostgreSQL no Neon.
+8. Deploy com Gunicorn no Render.
+9. CD com verificação HTTP pós-deploy.
+10. Perfil público `DEMO` com acesso somente para leitura.
+11. Demonstração visual documentada no repositório.
 
 ---
 
-## Autora
+## Status
 
-Projeto desenvolvido por **Marinize Fonseca de Godoy Santana**, como avaliação prática da disciplina **Development with Python**, do curso de Análise e Desenvolvimento de Sistemas (EAD) da **UniFECAF**.
+**Publicado e funcional.** O projeto possui aplicação pública, banco PostgreSQL em nuvem, autenticação, autorização, perfil de demonstração somente para leitura, regras de negócio, testes automatizados, logging, CI, segurança e CD.
 
-* GitHub: <https://github.com/marinizedev>
-* LinkedIn: <https://linkedin.com/in/marinize-santana-47bb2b372>
-* E-mail: <marinize.santana.dev@gmail.com>
+---
+
+## Autoria
+
+Projeto desenvolvido por **Marinize Santana**.
+
+- GitHub: <https://github.com/marinizedev>
+- LinkedIn: <https://linkedin.com/in/marinize-santana-47bb2b372>
+- E-mail: <marinize.santana.dev@gmail.com>
+
+---
+
+## Referências
+
+- [Flask Documentation](https://flask.palletsprojects.com/)
+- [Render — Deploy a Flask App](https://render.com/docs/deploy-flask)
+- [Render — Environment Variables](https://render.com/docs/configure-environment-variables)
+- [Neon — Scale to Zero](https://neon.com/docs/introduction/scale-to-zero)
+- [pytest Documentation](https://docs.pytest.org/)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Gunicorn Documentation](https://gunicorn.org/)
+- [Werkzeug Security Utilities](https://werkzeug.palletsprojects.com/en/stable/utils/)
+
+---
+
+## Licença
+
+Este projeto foi desenvolvido para fins acadêmicos e de portfólio. Para reutilização do código, consulte o arquivo [`LICENSE`](LICENSE), disponibilizado sob a licença MIT.
