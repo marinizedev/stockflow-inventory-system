@@ -15,7 +15,7 @@ permissions:
 jobs:
   test:
     name: Testes e validações
-    runs-on: ubuntu-
+    runs-on: ubuntu-latest
       
     env:
       STOCKFLOW_SECRET_KEY: chave-apenas-para-testes-do-ci
