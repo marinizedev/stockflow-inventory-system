@@ -15,7 +15,10 @@ permissions:
 jobs:
   test:
     name: Testes e validações
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-
+      
+    env:
+      STOCKFLOW_SECRET_KEY: chave-apenas-para-testes-do-ci
 
     steps:
       - name: Baixar código do repositório
@@ -45,6 +48,15 @@ jobs:
 
       - name: Verificar problemas básicos no diff
         run: git diff --check
+
+      - name: Diagnóstico do código executado
+        run: |
+          git rev-parse HEAD
+          git show -s --format='%H %s' HEAD
+          grep -n "return wrapped_view" app/auth/decorators.py
+          python -c "import flask; print(flask.__version__)"
+          test -n "$STOCKFLOW_SECRET_KEY" && echo "STOCKFLOW_SECRET_KEY configurada" || exit 1
+
 
       - name: Executar testes automatizados
         run: pytest -q
