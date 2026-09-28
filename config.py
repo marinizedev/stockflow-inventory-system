@@ -40,10 +40,12 @@ def obter_database_url():
 class Config:
     """Configurações base da aplicação."""
 
-    SECRET_KEY = os.getenv(
-        "STOCKFLOW_SECRET_KEY",
-        "chave-local-do-stockflow",
-    )
+    SECRET_KEY = os.getenv("STOCKFLOW_SECRET_KEY")
+
+    if not SECRET_KEY:
+        raise RuntimeError(
+            "A variável de ambiente STOCKFLOW_SECRET_KEY não foi configurada."
+        )
 
     LOG_LEVEL = os.getenv(
         "LOG_LEVEL",
