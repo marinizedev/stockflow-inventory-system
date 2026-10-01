@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Baixar código do repositório
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -47,13 +49,18 @@ jobs:
             run.py
 
       - name: Verificar problemas básicos no diff
-        run: git diff --check
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --check "origin/${{ github.base_ref }}...HEAD"
+          else
+            git diff --check "${{ github.event.before }}..${{ github.sha }}"
+          fi
 
       - name: Diagnóstico do código executado
         run: |
           git rev-parse HEAD
           git show -s --format='%H %s' HEAD
-          grep -n "return wrapped_view" app/auth/decorators.py
           python -c "import flask; print(flask.__version__)"
           test -n "$STOCKFLOW_SECRET_KEY" && echo "STOCKFLOW_SECRET_KEY configurada" || exit 1
 
