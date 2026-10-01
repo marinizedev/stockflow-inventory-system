@@ -105,6 +105,7 @@
                                     'Tem certeza que deseja inativar este usuário?'
                                 );"
                             >
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit">
                                     Inativar
                                 </button>
@@ -122,6 +123,7 @@
                                     'Tem certeza que deseja ativar este usuário?'
                                 );"
                             >
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit">
                                     Ativar
                                 </button>
