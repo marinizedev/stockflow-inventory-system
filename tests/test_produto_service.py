@@ -2,12 +2,30 @@ from decimal import Decimal
 
 import pytest
 
+from app.models.movimentacao import Movimentacao
 from app.services.produto_service import (
     criar_produto,
     editar_produto,
     inativar_produto,
     ativar_produto,
 )
+
+
+def test_saldo_inicial_e_estado_de_abertura_sem_movimentacao_automatica(app):
+    produto = criar_produto(
+        codigo="PROD-ABERTURA",
+        nome="Produto com saldo de abertura",
+        descricao="",
+        categoria="",
+        quantidade_inicial=12,
+        estoque_minimo=3,
+        preco=25.90,
+    )
+
+    assert produto.quantidade_atual == 12
+    assert Movimentacao.query.filter_by(
+        produto_id=produto.id
+    ).count() == 0
 
 
 def test_criar_produto_com_dados_validos(app):
