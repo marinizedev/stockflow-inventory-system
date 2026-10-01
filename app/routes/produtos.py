@@ -8,6 +8,7 @@ from flask import (
     url_for,
 )
 
+from app import db
 from app.auth.decorators import admin_required, login_required
 from app.models.produto import Produto
 from app.services.produto_service import (
@@ -111,7 +112,9 @@ def novo():
 def editar(produto_id):
     """Exibe e processa a edição de um produto."""
 
-    produto = Produto.query.get_or_404(produto_id)
+    produto = db.get_or_404(
+        Produto,
+        produto_id)
 
     if request.method == "POST":
 
@@ -187,7 +190,9 @@ def editar(produto_id):
 def inativar(produto_id):
     """Inativa um produto."""
 
-    produto = Produto.query.get_or_404(produto_id)
+    produto = db.get_or_404(
+        Produto,
+        produto_id)
 
     inativar_produto(produto)
 
@@ -202,7 +207,9 @@ def inativar(produto_id):
 def ativar(produto_id):
     """Ativa um produto."""
 
-    produto = Produto.query.get_or_404(produto_id)
+    produto = db.get_or_404(
+        Produto,
+        produto_id)
 
     ativar_produto(produto)
 

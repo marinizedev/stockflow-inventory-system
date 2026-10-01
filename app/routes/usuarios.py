@@ -7,6 +7,7 @@ from flask import (
     session
 )
 
+from app import db
 from app.auth.decorators import admin_required
 from app.models.usuario import Usuario
 
@@ -73,9 +74,12 @@ def novo():
 def inativar(usuario_id):
     """Inativa um usuário por meio do gerenciamento administrativo."""
 
-    usuario = Usuario.query.get_or_404(usuario_id)
+    usuario = db.get_or_404(
+        Usuario,
+        usuario_id)
 
-    usuario_logado = Usuario.query.get_or_404(
+    usuario_logado = db.get_or_404(
+        Usuario,
         session["usuario_id"]
     )
 
@@ -101,7 +105,9 @@ def inativar(usuario_id):
 def ativar(usuario_id):
     """Ativa um usuário por meio do gerenciamento administrativo."""
 
-    usuario = Usuario.query.get_or_404(usuario_id)
+    usuario = db.get_or_404(
+        Usuario,
+        usuario_id)
 
     ativar_usuario(usuario)
 
@@ -112,7 +118,9 @@ def ativar(usuario_id):
 def editar(usuario_id):
     """Exibe e processa a edição de um usuário."""
 
-    usuario = Usuario.query.get_or_404(usuario_id)
+    usuario = db.get_or_404(
+        Usuario,
+        usuario_id)
 
     if request.method == "POST":
         nome = request.form.get("nome", "")
