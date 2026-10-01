@@ -121,6 +121,7 @@
                                             produto_id=produto.id
                                         ) }}"
                                     >
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button type="submit">
                                             Inativar
                                         </button>
@@ -135,6 +136,7 @@
                                             produto_id=produto.id
                                         ) }}"
                                     >
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button type="submit">
                                             Ativar
                                         </button>
