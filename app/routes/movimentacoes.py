@@ -67,13 +67,15 @@ def nova():
         observacao = request.form.get("observacao", "")
 
         try:
-            produto = Produto.query.get_or_404(
+            produto = db.get_or_404(
+                Produto,
                 int(produto_id)
             )
 
             quantidade = int(quantidade)
 
-            usuario = Usuario.query.get_or_404(
+            usuario = db.get_or_404(
+                Usuario,
                 session["usuario_id"]
             )
 
