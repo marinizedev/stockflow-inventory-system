@@ -237,53 +237,53 @@ O StockFlow implementa regras para manter a consistência das operações e prot
 
 1. Nome, username e senha são obrigatórios no cadastro de usuários.
 
-1. O username deve ser único.
+2. O username deve ser único.
 
-1. As senhas não são armazenadas em texto puro.
+3. As senhas não são armazenadas em texto puro.
 
-1. O perfil deve corresponder a um dos perfis permitidos.
+4. O perfil deve corresponder a um dos perfis permitidos.
 
-1. Somente usuários `ADMIN` podem gerenciar usuários e o cadastro de produtos.
+5. Somente usuários `ADMIN` podem gerenciar usuários e o cadastro de produtos.
 
-1. Usuários inativos não podem realizar login.
+6. Usuários inativos não podem realizar login.
 
-1. Deve existir pelo menos um administrador ativo.
+7. Deve existir pelo menos um administrador ativo.
 
-1. O último administrador ativo não pode ser inativado.
+8. O último administrador ativo não pode ser inativado.
 
-1. Um usuário não pode inativar a própria conta.
+9. Um usuário não pode inativar a própria conta.
 
-1. O rebaixamento de um administrador depende da existência de outro administrador ativo.
+10. O rebaixamento de um administrador depende da existência de outro administrador ativo.
 
-1. O perfil `DEMO` não pode realizar operações de escrita.
+11. O perfil `DEMO` não pode realizar operações de escrita.
 
-1. O código do produto deve ser único.
+12. O código do produto deve ser único.
 
-1. O estoque atual não pode ser alterado diretamente na edição cadastral.
+13. O estoque atual não pode ser alterado diretamente na edição cadastral.
 
-1. Quantidade em estoque e estoque mínimo não podem ser negativos.
+14. Quantidade em estoque e estoque mínimo não podem ser negativos.
 
-1. O preço não pode ser negativo.
+15. O preço não pode ser negativo.
 
-1. A quantidade de uma movimentação deve ser maior que zero.
+16. A quantidade de uma movimentação deve ser maior que zero.
 
-1. Produtos inativos não podem receber movimentações.
+17. Produtos inativos não podem receber movimentações.
 
-1. Uma saída não pode gerar estoque negativo.
+18. Uma saída não pode gerar estoque negativo.
 
-1. A validação de saída considera o saldo vigente no banco, e não apenas o valor carregado em memória.
+19. A validação de saída considera o saldo vigente no banco, e não apenas o valor carregado em memória.
 
-1. A atualização do produto e o registro da movimentação ocorrem na mesma transação.
+20. A atualização do produto e o registro da movimentação ocorrem na mesma transação.
 
-1. Toda movimentação deve estar relacionada a um produto e a um usuário.
+21. Toda movimentação deve estar relacionada a um produto e a um usuário.
 
-1. O tipo de movimentação deve ser `ENTRADA` ou `SAIDA`.
+22. O tipo de movimentação deve ser `ENTRADA` ou `SAIDA`.
 
-1. Produtos ativos com saldo inferior ao estoque mínimo são identificados nos alertas.
+23. Produtos ativos com saldo inferior ao estoque mínimo são identificados nos alertas.
 
-1. Usuários e produtos são inativados logicamente, preservando seus registros e relacionamentos históricos.
+24. Usuários e produtos são inativados logicamente, preservando seus registros e relacionamentos históricos.
 
-1. Operações de escrita exigem token CSRF válido.
+25. Operações de escrita exigem token CSRF válido.
 
 ---
 
@@ -291,7 +291,7 @@ O StockFlow implementa regras para manter a consistência das operações e prot
 
 A aplicação utiliza uma arquitetura organizada em camadas, separando o tratamento das requisições das regras de negócio e da persistência.
 
-```
+```text
 Navegador
     |
     v
@@ -348,7 +348,7 @@ Armazena o produto relacionado, o usuário responsável, o tipo da operação, a
 
 ### Relacionamentos
 
-```
+```text
 Usuario 1 ───── N Movimentacao N ───── 1 Produto
 ```
 
@@ -404,7 +404,7 @@ O projeto utiliza **pytest** para verificar regras de negócio e proteções da 
 
 A suíte possui **58 casos executados**, distribuídos em 57 funções de teste e um caso parametrizado para dois perfis de acesso:
 
-```
+```powershell
 58 passed
 ```
 
@@ -462,7 +462,7 @@ O repositório utiliza GitHub Actions para automatizar testes, verificações de
 
 ### Fluxo de publicação
 
-```
+```text
 Pull Request
      |
      +------------------+
@@ -516,7 +516,7 @@ O smoke test verifica a disponibilidade da rota pública `/login`. Essa verifica
 
 ## Estrutura do projeto
 
-```
+```bash
 stockflow/
 ├── app/
 │   ├── auth/
@@ -617,7 +617,7 @@ python -m venv .venv
 
 No Windows PowerShell:
 
-```
+```bash
 .\.venv\Scripts\Activate.ps1
 ```
 
@@ -631,13 +631,13 @@ python -m pip install -r requirements.txt
 
 A aplicação exige a variável `STOCKFLOW_SECRET_KEY`. Para gerar uma chave aleatória no PowerShell:
 
-```
+```bash
 python -c "import secrets; print(secrets.token_hex(32 ))"
 ```
 
 Copie o valor gerado e defina-o na sessão atual do terminal:
 
-```
+```bash
 $env:STOCKFLOW_SECRET_KEY = "COLE_A_CHAVE_GERADA_AQUI"
 ```
 
@@ -662,7 +662,7 @@ python run.py
 
 Acesse:
 
-```
+```bash
 http://127.0.0.1:5000
 ```
 
@@ -694,7 +694,7 @@ O StockFlow seleciona o banco de dados de acordo com a variável `DATABASE_URL`.
 | `SESSION_COOKIE_SECURE` | Quando `true`, marca o cookie de sessão como `Secure`. |
 | `RENDER=true` | Ativa `SESSION_COOKIE_SECURE` caso `SESSION_COOKIE_SECURE` não tenha sido definida. |
 
-```
+```bash
 DATABASE_URL=
 STOCKFLOW_SECRET_KEY=
 LOG_LEVEL=INFO
@@ -790,35 +790,35 @@ O StockFlow começou como uma atividade acadêmica e foi ampliado progressivamen
 
 1. Organização da aplicação em rotas, serviços e modelos.
 
-1. Ampliação das regras de autenticação e autorização.
+2. Ampliação das regras de autenticação e autorização.
 
-1. Testes automatizados para as regras de negócio.
+3. Testes automatizados para as regras de negócio.
 
-1. Implementação de logging operacional em stdout, com nível configurável.
+4. Implementação de logging operacional em stdout, com nível configurável.
 
-1. CI e auditoria de dependências.
+5. CI e auditoria de dependências.
 
-1. Integração com PostgreSQL no Neon.
+6. Integração com PostgreSQL no Neon.
 
-1. Publicação com Gunicorn no Render.
+7. Publicação com Gunicorn no Render.
 
-1. Pipeline de CD com verificação HTTP pós-deploy.
+8. Pipeline de CD com verificação HTTP pós-deploy.
 
-1. Criação de um perfil público `DEMO` somente para leitura.
+9. Criação de um perfil público `DEMO` somente para leitura.
 
-1. Documentação visual e técnica no repositório.
+10. Documentação visual e técnica no repositório.
 
-1. Proteção CSRF com Flask-WTF e logout por `POST`.
+11. Proteção CSRF com Flask-WTF e logout por `POST`.
 
-1. Revalidação de sessão para usuários inativos ou inexistentes.
+12. Revalidação de sessão para usuários inativos ou inexistentes.
 
-1. Atualização atômica do estoque e transação única com a movimentação.
+13. Atualização atômica do estoque e transação única com a movimentação.
 
-1. Testes HTTP de CSRF, autorização e consistência do saldo.
+14. Testes HTTP de CSRF, autorização e consistência do saldo.
 
-1. Cookies de sessão com `SameSite` e `Secure` no ambiente publicado.
+15. Cookies de sessão com `SameSite` e `Secure` no ambiente publicado.
 
-1. Interface revisada, página 403 e layout responsivo.
+16. Interface revisada, página 403 e layout responsivo.
 
 Essa evolução permitiu levar uma aplicação inicialmente acadêmica a um ambiente público, mantendo o foco no controle de estoque, na integridade dos dados e na rastreabilidade das operações.
 
