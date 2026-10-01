@@ -71,7 +71,7 @@ def login():
     return render_template("login.html")
 
 
-@auth_bp.route("/logout")
+@auth_bp.route("/logout", methods=["POST"])
 def logout():
     """Encerra a sessão do usuário autenticado."""
 

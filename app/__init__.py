@@ -2,6 +2,7 @@ import logging
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import event
 
 from config import Config
@@ -11,6 +12,7 @@ from app.logging_config import configurar_logging
 logger = logging.getLogger(__name__)
 
 db = SQLAlchemy()
+csrf = CSRFProtect()
 
 
 def configurar_sqlite(engine):
@@ -41,6 +43,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    csrf.init_app(app)
     db.init_app(app)
 
     with app.app_context():

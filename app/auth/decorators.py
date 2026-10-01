@@ -9,6 +9,7 @@ from flask import (
     url_for,
 )
 
+from app import db
 from app.models.usuario import Usuario
 
 
@@ -23,7 +24,7 @@ def _usuario_atual():
     if usuario_id is None:
         return None
 
-    usuario = Usuario.query.get(usuario_id)
+    usuario = db.session.get(Usuario,usuario_id)
 
     if usuario is None:
         logger.warning(

@@ -115,12 +115,12 @@
 
                 </div>
 
-                <a
-                    href="{{ url_for('auth.logout') }}"
-                    class="logout-link"
-                >
-                    Sair
-                </a>
+                <form method="POST" action="{{ url_for('auth.logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="logout-link">
+                        Sair
+                    </button>
+                </form>
 
             </div>
 
